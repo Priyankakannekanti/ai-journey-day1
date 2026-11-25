@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.datasets import fetch_california_housing
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
@@ -41,6 +42,19 @@ def train_model(X_train, y_train, max_depth=None):
     )
     model.fit(X_train, y_train)
     return model
+def run_baseline(X_train, X_test, y_train, y_test):
+    """Trains a simple Linear Regression baseline model for comparison."""
+    baseline = LinearRegression()
+    baseline.fit(X_train, y_train)
+    
+    preds = baseline.predict(X_test)
+    r2 = r2_score(y_test, preds)
+    mae = mean_absolute_error(y_test, preds)
+    
+    print("\n--- Baseline Model (Linear Regression) ---")
+    print(f"Test R2 Score : {r2:.4f} ({r2 * 100:.2f}%)")
+    print(f"Mean Abs Error: ${mae * 100000:,.2f}")
+    return r2, mae
 
 def evaluate_model(model, X_train, X_test, y_train, y_test, feature_names):
     """Evaluates train vs test R2 score, test errors, and feature importances."""
@@ -73,6 +87,7 @@ def evaluate_model(model, X_train, X_test, y_train, y_test, feature_names):
 if __name__ == "__main__":
     X, y = load_data()
     X_train, X_test, y_train, y_test, scaler = preprocess_and_split(X, y)
+    baseline_r2, baseline_mae = run_baseline(X_train, X_test, y_train, y_test)
 
     print("\n--- Testing max_depth Values ---")
     depths = [None, 10, 15, 20]
